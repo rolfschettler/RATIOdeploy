@@ -1,0 +1,27 @@
+# --- Zugriff nur von localhost ---
+<RequireAll>
+    #Zugriff nur vom lokalen Rechner bzw. interner API
+    Require local
+</RequireAll>
+
+# --- Cache-Kontrolle der HTML-Dateien ---
+<FilesMatch "\.(html|htm)$">
+  FileETag None
+  <IfModule mod_headers.c>
+    Header unset ETag
+    Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "Wed, 12 Jan 1980 05:00:00 GMT"
+  </IfModule>
+</FilesMatch>
+
+# --- URL-Rewriting ---
+RewriteEngine On
+
+# Existierende Datei oder Ordner -> normal ausliefern
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
+RewriteRule ^ - [L]
+
+# Alle anderen Anfragen -> index.php
+RewriteRule ^ index.php

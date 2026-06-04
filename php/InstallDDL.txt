@@ -1,0 +1,10 @@
+
+C:\Program Files (x86)\Embarcadero\Studio\37.0\InterBase2020\bin>isql
+Use CONNECT or CREATE DATABASE to specify a database
+SQL> CONNECT 'D:\Delphi\harri\KleinesPaket\RATIOWW-IB2020.IB'USER 'SYSDBA' PASSWORD 'masterkey';
+Database:  'D:\Delphi\harri\KleinesPaket\RATIOWW-IB2020.IB', User: SYSDBA
+SQL> input d:\modify000.ddl;
+SQL>
+
+
+
