@@ -24,7 +24,12 @@ $router->post('/calculateroute', ['Src\Controller\GeoController', 'calculaterout
 
 
 $router->post('/calculatedistance', ['Src\Controller\GeoController', 'calculateDistance']);
+$router->get('/getdokument',  ['Src\Controller\DelphiApiController', 'getdokument']);
+
 $router->post('/select', ['Src\Controller\DelphiApiController', 'select']);
+
+$router->post('/select/withblob', ['Src\Controller\DelphiApiController', 'select']);
+
 $router->post('/insert', ['Src\Controller\DelphiApiController', 'insert']);
 $router->post('/delete', ['Src\Controller\DelphiApiController', 'delete']);
 $router->post('/update', ['Src\Controller\DelphiApiController', 'update']);

@@ -25,7 +25,7 @@ class DelphiApiController
 
     //---------------------------------------SQL-API-------------------------------------------------------------------------------
 
-    public function select(string $sql = ''): mixed
+    public function select(string $sql = '', bool $withblob = false): mixed
     {
         if (!$sql) {
             $sql = file_get_contents("php://input");
@@ -34,9 +34,50 @@ class DelphiApiController
         if (!json_decode($sql, true)) {
             throw new Exception("php-select: Leer oder ungültiges JSON-Format");
         }
-
-        return $this->request('/select', $sql);
+        if ($withblob) {
+            return $this->request('/select/withblob', $sql);
+        } else {
+            return $this->request('/select', $sql);
+        }
     }
+
+
+
+
+    public function getdokument(): mixed
+    {
+        $nr = $_GET['nr'] ?? throw new Exception("getdokument: Parameter 'nr' fehlt");
+        $sql = json_encode([
+            'sql'    => 'Select nr,doktyp,art,bereich,name,haupttext from vorlagen where nr=:nr',
+            'params' => ['nr' => (int)$nr],
+        ]);
+        $result = $this->select($sql, true);
+        $row = $result['data'][0] ?? throw new Exception("getdokument: Kein Datensatz gefunden");
+
+        $mimeTypes = [
+            '.pdf'  => 'application/pdf',
+            '.docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            '.doc'  => 'application/msword',
+            '.xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            '.xls'  => 'application/vnd.ms-excel',
+            '.png'  => 'image/png',
+            '.jpg'  => 'image/jpeg',
+            '.jpeg' => 'image/jpeg',
+        ];
+
+        $art      = strtolower(trim($row['art'] ?? ''));
+        $name     = trim($row['name'] ?? ('dokument' . $art));
+        $mime     = $mimeTypes[$art] ?? 'application/octet-stream';
+        $binary   = base64_decode($row['haupttext']);
+
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: inline; filename="' . $name . '"');
+        header('Content-Length: ' . strlen($binary));
+        echo $binary;
+        return null;
+    }
+
+
 
     public function insert(string $table = '', string $content = ''): mixed
     {
@@ -131,7 +172,7 @@ class DelphiApiController
         $response  = curl_exec($ch);
         $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curlError = curl_errno($ch) ? curl_error($ch) : null;
-   
+
 
         if ($curlError) {
 
